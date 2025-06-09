@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Validação de Usuário</title>
+</head>
+
+<body>
+    <h1>Executando tarefas de validação (solução)</h1>
+    <h2>Nome do repositório</h2>
+    <input type="text" id="repo" onkeyup="validar()" required>
+    <br><br>
+    <output></output>
+
+    <script>
+        const output = document.querySelector("output");
+        const repositoriosExistentes = ["fastapi", "pratica-flexbox", "pagina-cidade", "cadastro-vingadores"];
+
+        let chamadaAtual = 0;
+
+        function verificarNomeRepositorioDisponivel(nome, chamada) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+
+                    // Cancela a execução se uma nova chamada já foi feita
+                    if (chamada !== chamadaAtual) return;
+
+                    if (repositoriosExistentes.includes(nome.toLowerCase())) {
+                        reject(`❌ O repositório "${nome}" já existe. Escolha outro nome.`);
+                    } else {
+                        resolve(`✅ O nome "${nome}" está disponível.`);
+                    }
+                }, 1000); // simula tempo de consulta ao "banco"
+            });
+        }
+
+        async function validar() {
+
+            // Atualiza o número da chamada
+            const minhaChamada = ++chamadaAtual;
+
+            if (document.querySelector("#repo").value.length < 3) {
+                output.innerHTML = "O nome do seu repositório deve ter pelo menos 3 caracteres.<br>";
+                return;
+            }
+
+            output.innerHTML = "";
+            
+            const nome = document.querySelector("#repo").value;
+
+            try {
+                const resultado = await verificarNomeRepositorioDisponivel(nome, minhaChamada);
+                
+                // Verifica se esta ainda é a última chamada válida
+                if (minhaChamada === chamadaAtual) {
+                    output.innerHTML += `${resultado}<br>`;
+                }
+            } catch (erro) {
+
+                // Verifica se esta ainda é a última chamada válida
+                if (minhaChamada === chamadaAtual) {
+                    output.innerHTML += `${erro}<br>`;
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

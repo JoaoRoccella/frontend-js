@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Validação de Usuário com Closure</title>
+</head>
+
+<body>
+    <h1>Executando tarefas de validação (com then/catch, closure e AbortController)</h1>
+    <h2>Nome do repositório</h2>
+    <input type="text" id="repo" onkeyup="validador.validar()" required>
+    <br><br>
+    <output></output>
+
+    <script>
+        const output = document.querySelector("output");
+        const repositoriosExistentes = ["fastapi", "pratica-flexbox", "pagina-cidade", "cadastro-vingadores"];
+
+        function criarValidador() {
+            let controller = new AbortController();
+
+            function verificarNomeRepositorioDisponivel(nome, signal) {
+                return new Promise((resolve, reject) => {
+                    const delay = setTimeout(() => {
+                        if (signal.aborted) {
+                            reject("🔁 Consulta cancelada.");
+                            return;
+                        }
+
+                        if (repositoriosExistentes.includes(nome.toLowerCase())) {
+                            reject(`❌ O repositório "${nome}" já existe. Escolha outro nome.`);
+                        } else {
+                            resolve(`✅ O nome "${nome}" está disponível.`);
+                        }
+                    }, 1000);
+
+                    // Se o sinal for abortado antes do timeout
+                    signal.addEventListener("abort", () => {
+                        clearTimeout(delay); // importante para evitar execução desnecessária
+                    });
+                });
+            }
+
+            return {
+                validar: function () {
+                    const nome = document.querySelector("#repo").value;
+
+                    if (nome.length < 3) {
+                        output.innerHTML = "O nome do repositório deve ter pelo menos 3 caracteres.";
+                        return;
+                    }
+
+                    // Aborta a requisição anterior, se houver
+                    controller.abort();
+                    controller = new AbortController();
+
+                    output.innerHTML = "Verificando disponibilidade...";
+
+                    verificarNomeRepositorioDisponivel(nome, controller.signal)
+                        .then((resposta) => {
+                            output.innerHTML = resposta;
+                        })
+                        .catch((erro) => {
+                            output.innerHTML = erro;
+                        });
+                }
+            };
+        }
+
+        const validador = criarValidador();
+    </script>
+</body>
+
+</html>
