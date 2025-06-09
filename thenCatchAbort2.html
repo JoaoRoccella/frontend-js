@@ -76,8 +76,19 @@
 
         const validador = criarValidador();
 
+        // Debounce para evitar chamadas excessivas ao validador
+        // A função debounce limita a taxa de execução de uma função
+        function debounce(funcao, delay) {
+            let timeout;
+            return (...args) => { // Retorna uma nova função que, quando chamada, limpa o timeout anterior e define um novo. "...args" permite passar argumentos para a função original
+                clearTimeout(timeout); 
+                timeout = setTimeout(() => funcao(...args), delay);
+            };
+        }
+
+
         // Adiciona o evento de keyup ao input para chamar o validador
-        document.querySelector("#repo").addEventListener("keyup", validador.validar);
+        document.querySelector("#repo").addEventListener("keyup", debounce(validador.validar, 300));
     </script>
 </body>
 
