@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Async e Await</title>
+</head>
+
+<body>
+    <h1>Execução de uma operação</h1>
+    <button type="button" onclick="executarOperacao()">Executar Operação</button>
+    <br>
+    <output>
+        <p>Lorem ipsum dolor sit amet.</p>
+    </output>
+
+    <script>
+        const output = document.querySelector('output');
+        console.log(`O que tem dentro de "output": \n`);
+        console.log(output);
+
+        const minhaFuncaoAssincrona = async () => {
+            return new Promise((resolve, reject) => {
+                // Simulando uma "assincronia", uma tarefa que demora para responder
+                setTimeout(() => resolve("✅ A tarefa assíncrona concluída!"), 2000);
+                setTimeout(() => reject("❌ A tarefa assíncrona falhou!"), 2000);
+            });
+        }
+
+        async function executarOperacao() {
+            output.innerText = "Executando tarefa...";
+
+            try {
+                const resultado = await minhaFuncaoAssincrona();
+                output.innerHTML += `<br>${resultado}`;
+            } catch (erro) {
+                output.innerHTML += `<br>${erro}`;
+            }
+        }
+    </script>
+</body>
+
+</html>

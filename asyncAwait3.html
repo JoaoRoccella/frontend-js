@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Async e Await</title>
+</head>
+
+<body>
+    <h1>Execução de TAREFAS PARALELAS com Async e Await</h1>
+    <button type="button" onclick="executarOperacao()">Executar Operação</button>
+    <br>
+    <output></output>
+
+    <script>
+        const output = document.querySelector('output');
+
+        function criarTarefa(nomeTarefa, tempoTarefa) {
+            // Simulando a execução de tarefas em paralelo
+            // Retorna uma Promise com um "resolve" particular para cada tarefa criada
+            return new Promise(resolve => {
+                setTimeout(() => resolve(`${nomeTarefa} concluída em ${tempoTarefa}`), tempoTarefa);
+            });
+        }
+
+        async function executarOperacao() {
+            output.innerText = "Executando tarefas paralelas...";
+
+            const tarefas = [
+                criarTarefa("Primeira tarefa", 3000),
+                criarTarefa("Segunda tarefa", 3000),
+                criarTarefa("Terceira tarefa", 3000)
+            ];
+
+            const resultados = await Promise.all(tarefas);
+            output.innerHTML += `<br> Todas as tarefas foram finalizadas: <br>${resultados.join("<br>")}`;
+        }
+    </script>
+
+</body>
+
+</html>

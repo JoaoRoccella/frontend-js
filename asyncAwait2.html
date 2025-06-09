@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Async e Await</title>
+</head>
+
+<body>
+    <h1>Execução de operação em ETAPAS com Async e Await</h1>
+    <button type="button" onclick="executarOperacao()">Executar Operação</button>
+    <br>
+    <output></output>
+
+    <script>
+        const output = document.querySelector('output');
+
+        function esperar(ms) {
+            // Simulando uma inserção no banco de dados em etapas, por exemplo
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function executarOperacao() {
+            output.innerText = "Etapa 1: Inicializando...";
+
+            await esperar(2000);
+            output.innerHTML += "<br>Etapa 2: Processando dados...";
+
+            await esperar(2000);
+            output.innerHTML += "<br>Etapa 3: Finalizando...";
+
+            await esperar(2000);
+            output.innerHTML += "<br>✅ Operação concluída com sucesso!";
+        }
+    </script>
+
+</body>
+
+</html>
