@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funções assíncronas - Solução</title>
+</head>
+
+<body>
+    <h1>Funções assíncronas - Solução</h1>
+    <p>Nossos repositórios agora serão protegidos por senha, mas precisamos validar a senha para que atenda a alguns requisitos de segurança, como:</p>
+    <ul>
+        <li>A senha deve ter comprimento mínimo de 8 caracteres</li>
+        <li>A senha deve possuir pelo menos um número</li>
+        <li>A senha deve ter pelo menos uma letra maiúscula</li>
+        <li>A senha deve ter pelo menos um dos caracteres especiais: ! @ # & * ( ) [ ] { } ~ .</li>
+    </ul>
+    <p>Caso a senha não atenda a qualquer desses requisitos, deve ser exibida a mensagem correspondente acima. </p>
+
+    <form action="">
+        <div class="input">
+            <label for="nomeRepositorio">Nome do repositório</label>
+            <input type="text" id="nomeRepositorio" onkeyup="validador.validarNomeRepositorio()" required autofocus>
+            <output id="outputNomeRepositorio"></output>
+        </div>
+
+        <div class="input">
+            <label for="senhaRepositorio">Senha do repositório</label>
+            <input type="password" id="senhaRepositorio" onkeyup="validador.validarSenha()" required>
+            <output id="outputSenhaRepositorio"></output>
+        </div>
+
+    </form>
+
+    <script>
+        const outputNomeRepositorio = document.getElementById('outputNomeRepositorio');
+        const repositoriosExistentes = ["api-com-fastapi", "pagina-cidade", "cadastro-vingadores"];
+        const outputSenhaRepositorio = document.getElementById('outputSenhaRepositorio');
+
+        function criarValidadores() {
+
+            let controller = new AbortController();
+
+            function verificarNomeRepositorioDisponivel(nome, signal) {
+                
+                return new Promise((resolve, reject) => {
+                    
+                    const atraso = setTimeout(() => {
+                        if (signal.aborted) {
+                            return;
+                        }
+                        
+                        if (repositoriosExistentes.includes(nome.toLowerCase())) {
+                            reject(`❌ O repositório "${nome}" já existe. Escolha outro nome.`);
+                        } else {
+                            resolve(`✅ O nome "${nome}" está disponível`);
+                        }
+                    }, 500); // simulando uma consulta demorada
+                    
+                    signal.addEventListener("abort", () => clearTimeout(atraso));
+                });
+
+            }
+
+            function verificarComplexidadeSenha(senha, signal) {
+                
+                return new Promise((resolve, reject) => {
+                    
+                    const atraso = setTimeout(() => {
+                        if (signal.aborted) {
+                            return;
+                        }
+                        
+                        const mensagensErros = [];
+
+                        if (senha.length < 8) {
+                            mensagensErros.push("A senha deve ter pelo menos 8 caracteres.");
+                        }
+
+                        if (!/\d/.test(senha)) {
+                            mensagensErros.push("A senha deve conter pelo menos um número.");
+                        } // significado do regex: \d significa qualquer dígito de 0 a 9
+
+                        if (!/[A-Z]/.test(senha)) {
+                            mensagensErros.push("A senha deve conter pelo menos uma letra maiúscula.");
+                        } // significado do regex: [A-Z] significa qualquer letra maiúscula de A a Z
+
+                        if (!/[!@#&*\(\)\[\]\{\}~.]/.test(senha)) {
+                            mensagensErros.push("A senha deve conter pelo menos um dos caracteres especiais: ! @ # & * ( ) [ ] { } ~ . ");
+                        } // significado do regex: [!@#&*~.\(\)\[\]\{\}] significa qualquer um dos caracteres especiais listados
+
+                        if (mensagensErros.length > 0) {
+                            reject(mensagensErros.join("<br>"));
+                        } else {
+                            resolve("✅ A senha atende a todos os requisitos.");
+                        }
+                    }, 500); // simulando uma consulta a uma "blacklist" de senhas
+
+                    signal.addEventListener("abort", () => clearTimeout(atraso));
+                });
+            }
+            
+            function validarNomeRepositorio() {
+                
+                controller.abort(); // cancelando o pedido antes...
+                controller = new AbortController(); // de fazer outro pedido
+                
+                const nomeRepositorio = document.getElementById('nomeRepositorio').value.trim();
+                
+                if (nomeRepositorio.length < 3) {
+                    outputNomeRepositorio.innerHTML = "O nome do repositório deve ter pelo menos 3 caracteres.";
+                    return;
+                }
+                
+                verificarNomeRepositorioDisponivel(nomeRepositorio, controller.signal)
+                    .then(bacia => outputNomeRepositorio.innerHTML = bacia) // executa uma função de callback quando a Promise retornar a resolução (resolve)
+                    .catch(erro => outputNomeRepositorio.innerHTML = erro); // executa uma função de callback quando a Promise retornar a rejeição (reject)
+            }
+
+            function validarSenha() {
+                
+                controller.abort(); // cancelando o pedido antes...
+                controller = new AbortController(); // de fazer outro pedido
+                
+                const senhaRepositorio = document.getElementById('senhaRepositorio').value.trim();
+                
+                verificarComplexidadeSenha(senhaRepositorio, controller.signal)
+                    .then(mensagem => outputSenhaRepositorio.innerHTML = mensagem) // executa uma função de callback quando a Promise retornar a resolução (resolve)
+                    .catch(erro => outputSenhaRepositorio.innerHTML = erro); // executa uma função de callback quando a Promise retornar a rejeição (reject)
+            }
+
+            return {
+                validarSenha: validarSenha,
+                validarNomeRepositorio: validarNomeRepositorio
+            };
+
+        }
+
+        const validador = criarValidadores();
+
+        /* Funções assíncronas - Tarefa
+
+        Nossos repositório serão protegidos por senha. Crie uma nova função ASSÍNCRONA validarSenha que deve ser retornada pela função construtora criarValidadores (além da função que já é retornada validarNomeRepositorio). Essa função deve realizar as seguintes validações:
+        
+        -> A senha deve ter comprimento mínimo de 8 caracteres;
+        -> A senha deve possuir pelo menos um número
+        -> A senha deve ter pelo menos uma letra maiúscula
+        -> A senha deve ter pelo menos um caracter especial (!@#&*()[]{}~.)
+
+        Caso a senha não atenda a qualquer desses requisitos, deve ser exibida a mensagem correspondente acima. */
+    </script>
+</body>
+
+</html>
