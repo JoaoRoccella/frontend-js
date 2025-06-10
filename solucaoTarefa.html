@@ -5,38 +5,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Funções assíncronas - Solução</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 
 <body>
     <h1>Funções assíncronas - Solução</h1>
     <p>Nossos repositórios agora serão protegidos por senha, mas precisamos validar a senha para que atenda a alguns requisitos de segurança, como:</p>
     <ul>
-        <li>A senha deve ter comprimento mínimo de 8 caracteres</li>
+        <li>A senha deve ter pelo menos 8 caracteres</li>
         <li>A senha deve possuir pelo menos um número</li>
         <li>A senha deve ter pelo menos uma letra maiúscula</li>
         <li>A senha deve ter pelo menos um dos caracteres especiais: ! @ # & * ( ) [ ] { } ~ .</li>
     </ul>
-    <p>Caso a senha não atenda a qualquer desses requisitos, deve ser exibida a mensagem correspondente acima. </p>
+    <p>Caso a senha não atenda a qualquer um desses requisitos, deve ser exibida a mensagem correspondente acima</p>
 
-    <form action="">
-        <div class="input">
-            <label for="nomeRepositorio">Nome do repositório</label>
-            <input type="text" id="nomeRepositorio" onkeyup="validador.validarNomeRepositorio()" required autofocus>
-            <output id="outputNomeRepositorio"></output>
+    <form>
+        <div class="m-3">
+            <label for="nomeRepositorio" class="form-label">Nome do repositório</label>
+            <input type="text" class="form-control" id="nomeRepositorio" required autofocus>
+            <output class="form-text"></output>
         </div>
 
-        <div class="input">
+        <div>
             <label for="senhaRepositorio">Senha do repositório</label>
-            <input type="password" id="senhaRepositorio" onkeyup="validador.validarSenha()" required>
-            <output id="outputSenhaRepositorio"></output>
+            <input type="password" id="senhaRepositorio" required>
+            <output></output>
         </div>
 
     </form>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script>
-        const outputNomeRepositorio = document.getElementById('outputNomeRepositorio');
+        const outputNomeRepositorio = document.querySelector('#nomeRepositorio + output');
+        const outputSenhaRepositorio = document.querySelector('#senhaRepositorio + output');
         const repositoriosExistentes = ["api-com-fastapi", "pagina-cidade", "cadastro-vingadores"];
-        const outputSenhaRepositorio = document.getElementById('outputSenhaRepositorio');
 
         function criarValidadores() {
 
@@ -48,6 +50,7 @@
                     
                     const atraso = setTimeout(() => {
                         if (signal.aborted) {
+                            // reject("✖️ Consulta cancelada.")
                             return;
                         }
                         
@@ -56,7 +59,7 @@
                         } else {
                             resolve(`✅ O nome "${nome}" está disponível`);
                         }
-                    }, 500); // simulando uma consulta demorada
+                    }, 1000); // simulando uma consulta
                     
                     signal.addEventListener("abort", () => clearTimeout(atraso));
                 });
@@ -64,47 +67,59 @@
             }
 
             function verificarComplexidadeSenha(senha, signal) {
-                
+
                 return new Promise((resolve, reject) => {
-                    
+
                     const atraso = setTimeout(() => {
-                        if (signal.aborted) {
-                            return;
-                        }
-                        
+                        if (signal.aborted) return;
+
                         const mensagensErros = [];
 
                         if (senha.length < 8) {
-                            mensagensErros.push("A senha deve ter pelo menos 8 caracteres.");
+                            mensagensErros.push("A senha deve ter pelo menos 8 caracteres");
                         }
+
+                        /* const numeros = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+                        senha.forEach(letra => {
+                            if (letra in numeros) {
+                                return;
+                            }
+                            mensagensErros.push("A senha deve ter um número")
+                        }); */
 
                         if (!/\d/.test(senha)) {
                             mensagensErros.push("A senha deve conter pelo menos um número.");
-                        } // significado do regex: \d significa qualquer dígito de 0 a 9
+                        } // expressão regular que verifica se a senha possui um dígito (\d)
 
                         if (!/[A-Z]/.test(senha)) {
                             mensagensErros.push("A senha deve conter pelo menos uma letra maiúscula.");
-                        } // significado do regex: [A-Z] significa qualquer letra maiúscula de A a Z
+                        }
 
                         if (!/[!@#&*\(\)\[\]\{\}~.]/.test(senha)) {
-                            mensagensErros.push("A senha deve conter pelo menos um dos caracteres especiais: ! @ # & * ( ) [ ] { } ~ . ");
-                        } // significado do regex: [!@#&*~.\(\)\[\]\{\}] significa qualquer um dos caracteres especiais listados
+                            mensagensErros.push("A senha deve conter pelo menos um dos caracteres especiais: ! @ # & * ( ) [ ] { } ~ .");
+                        }
 
                         if (mensagensErros.length > 0) {
                             reject(mensagensErros.join("<br>"));
                         } else {
                             resolve("✅ A senha atende a todos os requisitos.");
                         }
-                    }, 500); // simulando uma consulta a uma "blacklist" de senhas
+
+                    }, 500); // simulando uma consulta a uma blacklist de senhas
 
                     signal.addEventListener("abort", () => clearTimeout(atraso));
                 });
             }
+
+            function renovarController() {
+                controller.abort();
+                controller = new AbortController();
+                return controller.signal;
+            }
             
             function validarNomeRepositorio() {
                 
-                controller.abort(); // cancelando o pedido antes...
-                controller = new AbortController(); // de fazer outro pedido
+                const signal = renovarController();
                 
                 const nomeRepositorio = document.getElementById('nomeRepositorio').value.trim();
                 
@@ -113,42 +128,43 @@
                     return;
                 }
                 
-                verificarNomeRepositorioDisponivel(nomeRepositorio, controller.signal)
+                verificarNomeRepositorioDisponivel(nomeRepositorio, signal)
                     .then(bacia => outputNomeRepositorio.innerHTML = bacia) // executa uma função de callback quando a Promise retornar a resolução (resolve)
                     .catch(erro => outputNomeRepositorio.innerHTML = erro); // executa uma função de callback quando a Promise retornar a rejeição (reject)
             }
 
             function validarSenha() {
-                
-                controller.abort(); // cancelando o pedido antes...
-                controller = new AbortController(); // de fazer outro pedido
-                
-                const senhaRepositorio = document.getElementById('senhaRepositorio').value.trim();
-                
-                verificarComplexidadeSenha(senhaRepositorio, controller.signal)
-                    .then(mensagem => outputSenhaRepositorio.innerHTML = mensagem) // executa uma função de callback quando a Promise retornar a resolução (resolve)
-                    .catch(erro => outputSenhaRepositorio.innerHTML = erro); // executa uma função de callback quando a Promise retornar a rejeição (reject)
+
+                const signal = renovarController();
+
+                const senhaRepositorio = document.getElementById('senhaRepositorio').value;
+
+                verificarComplexidadeSenha(senhaRepositorio, signal)
+                    .then(mensagem => outputSenhaRepositorio.innerHTML = mensagem)
+                    .catch(erro => outputSenhaRepositorio.innerHTML = erro);
             }
 
             return {
-                validarSenha: validarSenha,
-                validarNomeRepositorio: validarNomeRepositorio
-            };
+                validarNomeRepositorio: validarNomeRepositorio,
+                validarSenha: validarSenha
+            }
 
         }
 
         const validador = criarValidadores();
 
-        /* Funções assíncronas - Tarefa
+        // Debouncer: evita chamadas desnecessárias ou excessivas a uma determinada função
+        function rebater(funcao, atraso) {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => funcao(...args), atraso);
+            }
+        }
 
-        Nossos repositório serão protegidos por senha. Crie uma nova função ASSÍNCRONA validarSenha que deve ser retornada pela função construtora criarValidadores (além da função que já é retornada validarNomeRepositorio). Essa função deve realizar as seguintes validações:
-        
-        -> A senha deve ter comprimento mínimo de 8 caracteres;
-        -> A senha deve possuir pelo menos um número
-        -> A senha deve ter pelo menos uma letra maiúscula
-        -> A senha deve ter pelo menos um caracter especial (!@#&*()[]{}~.)
+        document.getElementById('nomeRepositorio').addEventListener("keyup", rebater(validador.validarNomeRepositorio, 300));
 
-        Caso a senha não atenda a qualquer desses requisitos, deve ser exibida a mensagem correspondente acima. */
+        document.getElementById('senhaRepositorio').addEventListener("keyup", rebater(validador.validarSenha, 300));
     </script>
 </body>
 
