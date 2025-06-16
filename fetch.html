@@ -6,10 +6,12 @@
     <title>Document</title>
 </head>
 <body>
+    <img src="" alt="">
     <script>
         const requisicao = new Request('https://dadosabertos.camara.leg.br/api/v2/deputados?nome=tiririca', {
             method: 'GET'
         });
+        const imagem = document.querySelector('img');
 
         fetch(requisicao)
             .then(response => {
@@ -20,9 +22,10 @@
             })
             .then(data => {
                 console.log(data);
+                imagem.src = data.dados[0].urlFoto
             })
             .catch(error => {
-                console.error('Houve um problema com a requisição:', error);1
+                console.error('Houve um problema com a requisição:', error);
             });
     </script>
 </body>
