@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Object Model (DOM)</title>
+</head>
+<body>
+    <form action="" id="form1">
+        <input type="text" value="1">
+        <input type="text" value="2">
+    </form>
+    <p></p>
+    <script>
+    const form = document.forms['form1'];
+    console.log(form.elements);
+    let texto = '';
+    
+       /*  for (elemento of form.elements) {
+            texto += `${elemento.value}<br>`
+        }
+       */
+    
+        [...form.elements].forEach(elemento => texto += `${elemento.value}<br>`)
+        
+    
+    document.querySelector('p').innerHTML = texto
+    </script>
+</body>
+</html>
